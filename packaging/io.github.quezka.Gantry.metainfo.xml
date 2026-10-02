@@ -59,6 +59,11 @@
 
   <!-- Newest first. Every released version needs an entry; tests enforce it. -->
   <releases>
+    <release version="0.2.1" date="2026-10-02">
+      <description>
+        <p>Drag the chart to move around it, and a much quieter handle for resizing the task table.</p>
+      </description>
+    </release>
     <release version="0.2.0" date="2026-10-02">
       <description>
         <p>Drag a task onto another to nest it, choose the interface size, dialogs that fit small

@@ -350,3 +350,35 @@ def test_a_real_drag_and_drop_in_the_table(window):
     tree.dropEvent(drop)
     QApplication.processEvents()
     assert next(t for t in window.editor.project().tasks if t.id == 3).parent == 4
+
+
+def test_dragging_empty_chart_space_moves_the_view(window):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtTest import QTest
+    open_sample(window)
+    window.plan.set_zoom("day")
+    view = window.plan.view
+    window.plan.select(3)
+    bar = view.horizontalScrollBar()
+    bar.setValue(400)
+    empty = QPoint(view.viewport().width() // 2, view.viewport().height() - 20)
+    assert not view._on_bar(empty)
+    QTest.mousePress(view.viewport(), Qt.LeftButton, Qt.NoModifier, empty)
+    QTest.mouseMove(view.viewport(), empty + QPoint(-120, 0))
+    QTest.mouseMove(view.viewport(), empty + QPoint(-150, 0))
+    QTest.mouseRelease(view.viewport(), Qt.LeftButton, Qt.NoModifier, empty + QPoint(-150, 0))
+    QApplication.processEvents()
+    assert bar.value() == 550  # dragged left, so the chart moved right under the cursor
+    assert window.plan.selected_ids() == [3]  # a drag is not a click
+
+
+def test_clicking_empty_chart_space_clears_the_selection(window):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtTest import QTest
+    open_sample(window)
+    view = window.plan.view
+    window.plan.select(3)
+    empty = QPoint(view.viewport().width() // 2, view.viewport().height() - 20)
+    QTest.mouseClick(view.viewport(), Qt.LeftButton, Qt.NoModifier, empty)
+    QApplication.processEvents()
+    assert window.plan.selected_ids() == []

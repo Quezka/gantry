@@ -541,6 +541,9 @@ class GanttView(QGraphicsView):
         self._link_path: QGraphicsPathItem | None = None
         self._link_from: BarItem | None = None
         self._pan = None
+        self._pan_moved = False
+        self._pan_clears = False
+        self.viewport().setCursor(Qt.OpenHandCursor)
         self.setMouseTracking(True)
 
     def resizeEvent(self, e):
@@ -584,32 +587,45 @@ class GanttView(QGraphicsView):
                 return bar.task.id
         return None
 
-    # empty space
+    # empty space: drag it to move around (a plain click on it clears the selection)
+    def _on_bar(self, pos) -> bool:
+        return isinstance(self.itemAt(pos), BarItem)
+
     def mousePressEvent(self, e):
-        if e.button() == Qt.MiddleButton or (e.button() == Qt.LeftButton
-                                              and self.itemAt(e.position().toPoint()) is None
-                                              and e.modifiers() & Qt.AltModifier):
+        on_bar = self._on_bar(e.position().toPoint())
+        if e.button() == Qt.MiddleButton or (e.button() == Qt.LeftButton and not on_bar):
             self._pan = (e.position(), self.horizontalScrollBar().value(),
                          self.verticalScrollBar().value())
-            self.viewport().setCursor(Qt.ClosedHandCursor)
+            self._pan_moved = False
+            self._pan_clears = e.button() == Qt.LeftButton
+            e.accept()
             return
-        if e.button() == Qt.LeftButton and self.itemAt(e.position().toPoint()) is None:
-            self.later(self.selectionPicked, None, False)
         super().mousePressEvent(e)
 
     def mouseMoveEvent(self, e):
         if self._pan:
             origin, hx, vy = self._pan
             d = e.position() - origin
+            if not self._pan_moved and abs(d.x()) + abs(d.y()) < 4:
+                return  # still a click
+            if not self._pan_moved:
+                self._pan_moved = True
+                self.viewport().setCursor(Qt.ClosedHandCursor)
             self.horizontalScrollBar().setValue(int(hx - d.x()))
             self.verticalScrollBar().setValue(int(vy - d.y()))
             return
+        if not e.buttons():
+            self.viewport().setCursor(Qt.ArrowCursor if self._on_bar(e.position().toPoint())
+                                      else Qt.OpenHandCursor)
         super().mouseMoveEvent(e)
 
     def mouseReleaseEvent(self, e):
         if self._pan:
+            clicked = not self._pan_moved and self._pan_clears
             self._pan = None
-            self.viewport().unsetCursor()
+            self.viewport().setCursor(Qt.OpenHandCursor)
+            if clicked:
+                self.later(self.selectionPicked, None, False)
             return
         super().mouseReleaseEvent(e)
 

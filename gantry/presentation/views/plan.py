@@ -204,7 +204,7 @@ class PlanPage(Page):
         self.view = GanttView()
         self.splitter = QSplitter(Qt.Horizontal, objectName="planSplit")
         self.splitter.setChildrenCollapsible(False)
-        self.splitter.setHandleWidth(9)
+        self.splitter.setHandleWidth(7)
         self.tree.setMinimumWidth(180)
         self.view.setMinimumWidth(240)
         self.splitter.addWidget(self.tree)

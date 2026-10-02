@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.1] - 2026-10-02
+- Drag empty space in the chart to move around it (a plain click there still clears the selection). The cursor becomes a hand.
+- The grip for resizing the task table is invisible until you point at it, and then only a soft tint.
+
 ## [0.2.0] - 2026-10-02
 - Drag a task onto another to make it part of it (with everything under it); drop it between tasks to just move it. A task can't be dropped into its own branch.
 - Interface size in Settings (Automatic, 80%–130%). Automatic makes everything a little smaller on small screens such as 1366x768. Applies after a restart.
