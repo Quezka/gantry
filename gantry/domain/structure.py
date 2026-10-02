@@ -74,3 +74,23 @@ def copy_subtree(project: Project, id: int, new_ids: dict[int, int]) -> list[Tas
         parent = new_ids.get(t.parent, t.parent) if t.id != id else t.parent
         out.append(replace(t, id=new_ids[t.id], parent=parent, deps=deps, uid=""))
     return out
+
+
+def relocate(project: Project, id: int, parent: int | None, before: int | None = None) -> Project:
+    """Put the task (with what's under it) inside `parent` (None: top level), right before
+    the sibling `before`, or last when there is none. A task can't go inside itself."""
+    block_ids = project.subtree(id)
+    if parent in block_ids:
+        return project
+    rest = [t for t in project.tasks if t.id not in block_ids]
+    block = [replace(t, parent=parent) if t.id == id else t
+             for t in project.tasks if t.id in block_ids]
+    if before is not None and before not in block_ids and any(t.id == before for t in rest):
+        at = next(i for i, t in enumerate(rest) if t.id == before)
+    elif parent is None:
+        at = len(rest)
+    else:
+        inside = project.subtree(parent) - block_ids
+        at = max(i for i, t in enumerate(rest) if t.id in inside) + 1
+    moved = project.with_tasks(rest[:at] + block + rest[at:])
+    return moved.update(parent, expanded=True) if parent is not None else moved

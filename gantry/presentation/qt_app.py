@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 
 from .. import APP_ID
 from ..application.services import Services
-from . import i18n, theme
+from . import i18n, theme, uiscale
 from .icons import APP_ICON
 
 
@@ -16,6 +16,8 @@ def create_application(argv: list[str]) -> QApplication:
     QApplication.setApplicationName("Gantry")
     QApplication.setOrganizationName("Gantry")
     QApplication.setDesktopFileName(APP_ID)
+    if QApplication.instance() is None:
+        uiscale.apply_before_app()  # Qt reads the scale factor once, as the app is created
     app = QApplication.instance() or QApplication(argv)
     app.setStyle("Fusion")
     app.setWindowIcon(QIcon(str(APP_ICON)))

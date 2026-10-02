@@ -1,8 +1,11 @@
 import itertools
+import os
 from datetime import date, datetime
 from pathlib import Path
 
 import pytest
+
+os.environ.setdefault("QT_SCALE_FACTOR", "1")  # tests measure pixels: no automatic scaling
 
 from gantry.application.branding import Branding
 from gantry.application.editor import Editor
@@ -65,3 +68,14 @@ def empty_clipboard():
     app = QApplication.instance()
     if app is not None:
         app.clipboard().clear()
+
+
+@pytest.fixture(autouse=True)
+def no_errors_in_slots(monkeypatch):
+    """PySide prints an exception raised inside a Qt slot and carries on, so a broken redraw
+    looks like a pass. Make any such exception fail the test."""
+    import sys
+    caught = []
+    monkeypatch.setattr(sys, "excepthook", lambda kind, value, tb: caught.append(value))
+    yield
+    assert not caught, f"Uncaught exception in a Qt slot: {caught[0]!r}"

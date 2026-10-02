@@ -6,7 +6,8 @@ from PySide6.QtWidgets import (
     QPushButton, QVBoxLayout,
 )
 
-from . import i18n, theme
+from . import i18n, theme, uiscale
+from .fit import scrollable
 from .background import restart_app
 from .i18n import _
 from ..application.inputs import BrandingInput
@@ -33,6 +34,9 @@ class SettingsDialog(QDialog):
         for code, name in i18n.LANGUAGES:
             self.language.addItem(_(name) if code == "" else name, code)
         self.language.setCurrentIndex(max(0, self.language.findData(i18n.chosen_language())))
+        self.restart_size = QPushButton(_("Restart Gantry now"))
+        self.restart_size.hide()
+        self.restart_size.clicked.connect(self._restart)
         self.restart = QPushButton(_("Restart Gantry now"))
         self.restart.hide()
         self.restart.clicked.connect(self._restart)
@@ -66,6 +70,17 @@ class SettingsDialog(QDialog):
         school.body.addLayout(form)
         school.add(self.on_exports)
 
+        size = Card(_("Interface size"))
+        self.scale = QComboBox()
+        for choice in uiscale.CHOICES:
+            self.scale.addItem(_("Automatic") if choice == "auto" else f"{choice}%", choice)
+        self.scale.setCurrentIndex(max(0, self.scale.findData(uiscale.chosen())))
+        self.scale.currentIndexChanged.connect(self._scale_changed)
+        size.add(self.scale)
+        size.add(label(_("Applies after a restart. Automatic makes everything a little smaller "
+                         "on small screens."), "hint"))
+        size.add(self.restart_size)
+
         updates = Card(_("Updates"))
         auto = QCheckBox(_("Check for new versions once a day"))
         auto.setChecked(services.updates.auto_check())
@@ -89,9 +104,15 @@ class SettingsDialog(QDialog):
         layout.setSpacing(14)
         layout.addWidget(appearance)
         layout.addWidget(language)
+        layout.addWidget(size)
         layout.addWidget(school)
         layout.addWidget(updates)
         layout.addLayout(row)
+        scrollable(self)
+
+    def _scale_changed(self):
+        uiscale.set_chosen(self.scale.currentData())
+        self.restart_size.show()
 
     def _preview(self):
         self.preview.setPixmap(logo_tile(self.logo or str(SCHOOL_EMBLEM), str(SCHOOL_EMBLEM), 38,

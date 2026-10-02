@@ -14,6 +14,7 @@ from ..application.errors import ApplicationError
 from ..application.services import Services
 from . import theme
 from .bridge import ChangeRelay
+from .fit import clamp_window
 from .export import pdf_bytes, png_bytes, svg_bytes
 from .i18n import N_, _
 from .icons import APP_ICON, SCHOOL_EMBLEM
@@ -107,8 +108,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.services = services
         self.editor = services.editor
-        self.resize(1360, 860)
-        self.setMinimumSize(1020, 660)
+        clamp_window(self, 1360, 860, 1020, 660)
         self.setAcceptDrops(True)
 
         self.relay = ChangeRelay(self.editor, self)
@@ -394,6 +394,8 @@ class MainWindow(QMainWindow):
                 ("Ctrl+], Ctrl+[", _("Indent, outdent")),
                 ("Alt+Up / Alt+Down", _("Move the task up or down")),
                 ("Ctrl+L", _("Make the lower selected task wait for the upper")),
+                (_("Drag a task onto another"),
+                 _("Make it part of that task (drop it between tasks to just move it)")),
                 ("Ctrl+D", _("Duplicate")),
                 (_("Drag a bar"), _("Move it; drag its right edge to change the length")),
                 (_("Drag the ring at a bar's end"), _("Link it to another task")),

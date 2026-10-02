@@ -20,6 +20,12 @@ PLURALS = {
 }
 
 MESSAGES = {
+    'Interface size': 'Размер интерфейса',
+    'Automatic': 'Автоматически',
+    'Applies after a restart. Automatic makes everything a little smaller on small screens.': 'Применяется после перезапуска. Автоматический режим делает всё немного меньше на маленьких экранах.',
+    "Drag a task onto another": "Перетащите задачу на другую",
+    "Make it part of that task (drop it between tasks to just move it)": "Сделать частью той задачи (бросьте между задачами, чтобы просто переместить)",
+    "A task can't go inside itself.": "Задачу нельзя поместить внутрь самой себя.",
     'Drag to resize the task table (double-click to reset)': 'Потяните, чтобы изменить ширину таблицы задач (двойной щелчок — сбросить)',
     ' d': ' дн.',
     ' days': ' дн.',

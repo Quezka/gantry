@@ -276,3 +276,77 @@ def test_dragging_the_progress_triangle(window):
     QTest.mouseRelease(view.viewport(), Qt.LeftButton, Qt.NoModifier, end)
     QApplication.processEvents()
     assert window.editor.project().tasks[3].complete == 50
+
+
+def test_chart_and_table_follow_the_theme_after_a_selection(window):
+    """Regression: refresh() used to crash once a task was selected, so nothing redrew."""
+    open_sample(window)
+    window.plan.select(3)
+    manager = theme.manager()
+    for mode, dark in (("dark", True), ("light", False)):
+        manager.set_mode(mode)
+        assert window.plan.view.chart.t.dark is dark
+        image = window.plan.view.viewport().grab().toImage()
+        pixel = image.pixelColor(image.width() - 5, image.height() - 5)
+        assert (pixel.lightness() < 128) is dark
+    manager.set_mode("system")
+
+
+def test_a_change_after_selecting_redraws_the_table(window):
+    open_sample(window)
+    window.plan.select(3)
+    window.editor.rename_task(3, "Fit the units")
+    assert window.plan.tree.topLevelItem(1).text(0) == "Fit the units" or any(
+        text == "Fit the units" for _d, text in rows(window))
+
+
+def _drop(window, moving, target, where=None):
+    """Drive the table's drop handler the way a drag does."""
+    from PySide6.QtWidgets import QAbstractItemView
+    tree = window.plan.tree
+    window.plan.select(moving)
+    tree.dropped.emit([moving], target[0], target[1])
+    QApplication.processEvents()
+
+
+def test_dropping_a_task_onto_another_makes_it_part_of_it(window):
+    open_sample(window)
+    _drop(window, 3, (4, None), "on")  # "Fit new units" into the milestone
+    rec = {t.name: t for t in window.editor.project().tasks}
+    assert rec["Fit new units"].parent == 4 and rec["Done"].summary
+    assert rows(window)[-2:] == [(0, "Done"), (1, "Fit new units")]
+
+
+def test_dropping_between_tasks_just_moves_the_task(window):
+    open_sample(window)
+    _drop(window, 4, (None, 0))  # before "Prepare"
+    assert rows(window)[0] == (0, "Done")
+
+
+def test_a_task_cannot_be_dropped_into_its_own_branch(window):
+    open_sample(window)
+    before = window.editor.project()
+    _drop(window, 0, (1, None))  # "Prepare" into its own child
+    assert window.editor.project() == before
+
+
+def test_a_real_drag_and_drop_in_the_table(window):
+    from PySide6.QtCore import QMimeData, QPoint, QPointF, Qt as QtCore
+    from PySide6.QtGui import QDropEvent
+    open_sample(window)
+    tree = window.plan.tree
+    window.plan.select(3)
+    target = tree.topLevelItem(2)  # "Done" (a milestone)
+    point = tree.visualItemRect(target).center()
+    from PySide6.QtWidgets import QAbstractItemView
+    tree.dragMoveEvent  # the drop indicator is set by the move event Qt sends first
+    tree.setState(QAbstractItemView.DraggingState)
+    from PySide6.QtGui import QDragMoveEvent
+    move = QDragMoveEvent(point, QtCore.MoveAction, QMimeData(), QtCore.LeftButton,
+                          QtCore.NoModifier)
+    tree.dragMoveEvent(move)
+    drop = QDropEvent(QPointF(point), QtCore.MoveAction, QMimeData(), QtCore.LeftButton,
+                      QtCore.NoModifier)
+    tree.dropEvent(drop)
+    QApplication.processEvents()
+    assert next(t for t in window.editor.project().tasks if t.id == 3).parent == 4

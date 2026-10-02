@@ -110,3 +110,16 @@ def test_deleting_a_task_drops_what_pointed_at_it():
                 Task(2, "c", MON, parent=0))
     q = p.without({0})
     assert [t.id for t in q.tasks] == [1] and q.task(1).deps == ()
+
+
+def test_relocate_makes_a_task_part_of_another_or_moves_it_between():
+    p = project(Task(0, "a", MON), Task(1, "b", MON), Task(3, "kid", MON, parent=1),
+                Task(2, "c", MON))
+    inside = structure.relocate(p, 2, 0)
+    assert inside.task(2).parent == 0 and inside.task(0).expanded
+    assert [t.id for t in inside.tasks] == [0, 2, 1, 3]
+    between = structure.relocate(p, 2, None, before=0)
+    assert [t.id for t in between.tasks] == [2, 0, 1, 3]
+    deep = structure.relocate(p, 0, 1)  # last child of b, after kid
+    assert [t.id for t in deep.tasks] == [1, 3, 0, 2] and deep.task(0).parent == 1
+    assert structure.relocate(p, 1, 3) == p  # not into its own child

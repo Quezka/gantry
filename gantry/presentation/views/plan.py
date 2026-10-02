@@ -5,6 +5,7 @@ from datetime import timedelta
 
 from PySide6.QtCore import QPoint, QRect, QSettings, QSize, Qt, Signal
 from PySide6.QtGui import QAction, QBrush, QColor, QCursor, QFont, QIcon, QKeySequence, QPainter, QPixmap, QShortcut
+from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtWidgets import (
     QAbstractItemView, QFrame, QHBoxLayout, QHeaderView, QLabel, QLineEdit, QMenu, QMessageBox,
     QSplitter, QStackedLayout, QStyledItemDelegate, QToolButton, QTreeWidget, QTreeWidgetItem,
@@ -56,8 +57,15 @@ class DoneDelegate(QStyledItemDelegate):
 
 
 class PlanTree(QTreeWidget):
+    dropped = Signal(list, object, object)  # task ids, parent id (or None), before id (or None)
+
     def __init__(self):
         super().__init__()
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropMode(QAbstractItemView.InternalMove)
+        self.setDefaultDropAction(Qt.MoveAction)
         self.setColumnCount(5)
         self.setHeaderLabels([_("Task"), _("Start"), _("End"), _("Days"), _("Done")])
         self.setUniformRowHeights(True)
@@ -81,6 +89,39 @@ class PlanTree(QTreeWidget):
         header.sectionResized.connect(
             lambda i, _o, w: QSettings().setValue(f"plan/col{i}", w))
         theme.themed(self._style)
+
+    def dropEvent(self, event):
+        """Don't let Qt shuffle the items: say where the tasks should go and let the project
+        decide (the table is redrawn from it)."""
+        moving = [i.data(NAME, ID) for i in self.selectedItems()]
+        target = self.itemAt(event.position().toPoint())
+        where = self.dropIndicatorPosition()
+        event.setDropAction(Qt.IgnoreAction)
+        event.ignore()
+        if not moving:
+            return
+        On, Above = QAbstractItemView.DropIndicatorPosition.OnItem, \
+            QAbstractItemView.DropIndicatorPosition.AboveItem
+        Below = QAbstractItemView.DropIndicatorPosition.BelowItem
+        if target is None:
+            self.dropped.emit(moving, None, None)
+            return
+        tid = target.data(NAME, ID)
+        parent_item = target.parent()
+        parent = parent_item.data(NAME, ID) if parent_item else None
+        if where == On:
+            self.dropped.emit(moving, tid, None)
+        elif where == Above:
+            self.dropped.emit(moving, parent, tid)
+        elif where == Below:
+            if target.childCount() and target.isExpanded():
+                self.dropped.emit(moving, tid, target.child(0).data(NAME, ID))
+            else:
+                siblings = parent_item if parent_item else self.invisibleRootItem()
+                nxt = siblings.child(siblings.indexOfChild(target) + 1)
+                self.dropped.emit(moving, parent, nxt.data(NAME, ID) if nxt else None)
+        else:
+            self.dropped.emit(moving, None, None)
 
     def _style(self, t):
         self.setStyleSheet(
@@ -198,6 +239,7 @@ class PlanPage(Page):
         self.tree.verticalScrollBar().valueChanged.connect(self.view.verticalScrollBar().setValue)
         self.view.verticalScrollBar().valueChanged.connect(self.tree.verticalScrollBar().setValue)
         self.tree.itemSelectionChanged.connect(self._selection_changed)
+        self.tree.dropped.connect(self._dropped)
         self.tree.itemExpanded.connect(lambda i: self._expanded(i, True))
         self.tree.itemCollapsed.connect(lambda i: self._expanded(i, False))
         self.tree.itemChanged.connect(self._renamed)
@@ -328,7 +370,7 @@ class PlanPage(Page):
             if id in items:
                 items[id].setSelected(True)
         if current in items:
-            self.tree.setCurrentItem(items[current], 0, self.tree.selectionModel().NoUpdate)
+            self.tree.setCurrentItem(items[current], 0, QItemSelectionModel.SelectionFlag.NoUpdate)
         self.tree.blockSignals(False)
         self._building = False
         self.stack.setCurrentIndex(1 if record.empty else 0)
@@ -473,7 +515,7 @@ class PlanPage(Page):
         else:
             self.tree.clearSelection()
             item.setSelected(True)
-        self.tree.setCurrentItem(item, 0, self.tree.selectionModel().NoUpdate)
+        self.tree.setCurrentItem(item, 0, QItemSelectionModel.SelectionFlag.NoUpdate)
 
     def _item(self, id):
         it = self.tree.invisibleRootItem()
@@ -511,6 +553,23 @@ class PlanPage(Page):
         task = self.task(item.data(NAME, ID))
         if task and not task.summary and x < 30:
             self._act(lambda: self.editor.set_complete(task.id, 0 if task.complete == 100 else 100))
+
+    def _dropped(self, ids, parent, before):
+        """Tasks were dropped in the table: onto a task (they become part of it) or between."""
+        top = [i for i in ids if not any(self._under(self.task(i), j) for j in ids if j != i)]
+        if parent is not None and any(parent == i or self._under(self.task(parent), i)
+                                      for i in top):
+            return  # a task can't go inside itself
+        def go():
+            for id in top:
+                if id != before:
+                    self.editor.relocate(id, parent, before)
+            self.editor.end_group()
+        self._act(go)
+        for id in top:
+            item = self._item(id)
+            if item:
+                item.setSelected(True)
 
     def _moved(self, id, days):
         self._act(lambda: self.editor.move_task_by(id, days))

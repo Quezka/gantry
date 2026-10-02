@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0] - 2026-10-02
+- Drag a task onto another to make it part of it (with everything under it); drop it between tasks to just move it. A task can't be dropped into its own branch.
+- Interface size in Settings (Automatic, 80%–130%). Automatic makes everything a little smaller on small screens such as 1366x768. Applies after a restart.
+- Windows and dialogs never open bigger than the screen; Settings and the editors scroll when they're taller than it.
+- Fixed: after selecting a task the table and chart stopped redrawing (and didn't follow a theme change).
+
 ## [0.1.1] - 2026-10-02
 - The task table can be resized: drag the grip between it and the chart (double-click to reset); the width is remembered.
 

@@ -15,6 +15,7 @@ from ..application.inputs import AssignInput, DepInput, ResourceInput, TaskInput
 from ..application.records import ProjectRecord, ResourceRecord, TaskRecord
 from ..application.types import KIND_CODES, PALETTE, DepKind
 from . import theme
+from .fit import clamp_dialog, scrollable
 from .formatting import dep_label, day_label, money, pydate, qdate, range_text
 from .i18n import _, plural
 from .views.common import Segmented, button, caption, label, primary_button
@@ -293,7 +294,7 @@ class TaskEditor(QDialog):
         layout.setSpacing(12)
         layout.addWidget(scroll, 1)
         layout.addLayout(row)
-        self.resize(600, 700)
+        clamp_dialog(self, 600, 700)
 
         self._settle(initial=True)
         self.start.dateChanged.connect(lambda _d: self._settle())
@@ -456,6 +457,7 @@ class ResourceEditor(QDialog):
         layout.addLayout(rate)
         layout.addLayout(row)
         self.name.setFocus()
+        scrollable(self)
 
     def _accept(self):
         if self.name.text().strip():

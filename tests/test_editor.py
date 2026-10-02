@@ -216,3 +216,18 @@ def test_sample_project_builds_through_use_cases(editor):
     rec = editor.project()
     assert len(rec.tasks) == 13 and rec.finish > rec.start and not editor.dirty
     assert TODAY - timedelta(days=30) < rec.start
+
+
+def test_dropping_a_task_into_another_nests_it_with_its_branch(editor):
+    editor.new()
+    a, b, c = add(editor, "a"), add(editor, "b"), add(editor, "c")
+    editor.indent(c)  # c under b
+    editor.relocate(b, a)  # b (and c) become part of a
+    rec = {t.name: t for t in editor.project().tasks}
+    assert rec["b"].parent == a and rec["c"].parent == b and rec["a"].summary
+    assert [t.name for t in editor.project().tasks] == ["a", "b", "c"]
+    editor.undo()
+    assert editor.project().tasks[1].depth == 0
+    from gantry.application.errors import ApplicationError
+    with pytest.raises(ApplicationError):
+        editor.relocate(b, c)

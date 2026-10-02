@@ -442,6 +442,16 @@ class Editor:
         if self._project.task(id):
             self._commit(structure.move(self._project, id, +1))
 
+    def relocate(self, id: int, parent: int | None, before: int | None = None):
+        """Drag and drop: make the task part of `parent` (None: top level), before the
+        sibling `before` or last."""
+        p = self._project
+        if p.task(id) is None:
+            return
+        if parent is not None and (p.task(parent) is None or parent in p.subtree(id)):
+            raise ApplicationError("A task can't go inside itself.")
+        self._commit(structure.relocate(p, id, parent, before))
+
     def duplicate(self, id: int) -> int | None:
         p = self._project
         if p.task(id) is None:
