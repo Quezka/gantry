@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.1] - 2026-10-02
+- The task table can be resized: drag the grip between it and the chart (double-click to reset); the width is remembered.
+
 ## [0.1.0] - 2026-10-02
 - First release.
 - Opens and saves GanttProject (`.gan`) files. What Gantry doesn't use (column layout, custom columns, baselines, per-task extras) is kept as it was, so a project can go back and forth between the two programs.

@@ -161,12 +161,19 @@ class PlanPage(Page):
         # ---- table + chart
         self.tree = PlanTree()
         self.view = GanttView()
-        self.splitter = QSplitter(Qt.Horizontal)
+        self.splitter = QSplitter(Qt.Horizontal, objectName="planSplit")
         self.splitter.setChildrenCollapsible(False)
+        self.splitter.setHandleWidth(9)
+        self.tree.setMinimumWidth(180)
+        self.view.setMinimumWidth(240)
         self.splitter.addWidget(self.tree)
         self.splitter.addWidget(self.view)
         self.splitter.setStretchFactor(1, 1)
         self.splitter.setSizes([int(QSettings().value("plan/split", 520)), 800])
+        handle = self.splitter.handle(1)
+        handle.setCursor(Qt.SplitHCursor)
+        handle.setToolTip(_("Drag to resize the task table (double-click to reset)"))
+        handle.installEventFilter(self)
         self.splitter.splitterMoved.connect(
             lambda _p, _i: QSettings().setValue("plan/split", self.splitter.sizes()[0]))
         self.card = Card(padding=0)
@@ -210,6 +217,14 @@ class PlanPage(Page):
         v.zoomRequested.connect(self._zoom_step)
         self._shortcuts()
         theme.manager().changed.connect(lambda _t: self.refresh())
+
+    def eventFilter(self, obj, event):
+        if (event.type() == event.Type.MouseButtonDblClick
+                and obj is self.splitter.handle(1)):
+            self.splitter.setSizes([520, max(self.width() - 520, 240)])
+            QSettings().setValue("plan/split", 520)
+            return True
+        return super().eventFilter(obj, event)
 
     # ---- shortcuts ----------------------------------------------------------------------
 

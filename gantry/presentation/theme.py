@@ -319,6 +319,9 @@ def stylesheet(t: Theme) -> str:
     QMenu::item:selected {{ background: {t.hover}; }}
     QMenu::separator {{ height: 1px; background: {t.border}; margin: 5px 8px; }}
     QSplitter::handle {{ background: transparent; }}
+    QSplitter#planSplit::handle {{ background: {t.border}; margin: 0 4px; }}
+    QSplitter#planSplit::handle:hover, QSplitter#planSplit::handle:pressed {{
+        background: {t.accent}; margin: 0 3px; }}
     QCalendarWidget QWidget {{ alternate-background-color: {t.raised}; }}
     QCalendarWidget QToolButton {{ border: none; background: transparent; }}
     """

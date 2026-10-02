@@ -20,6 +20,7 @@ PLURALS = {
 }
 
 MESSAGES = {
+    'Drag to resize the task table (double-click to reset)': 'Потяните, чтобы изменить ширину таблицы задач (двойной щелчок — сбросить)',
     ' d': ' дн.',
     ' days': ' дн.',
     'A GanttProject .gan file': 'Файл GanttProject (.gan)',
