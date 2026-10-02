@@ -382,3 +382,31 @@ def test_clicking_empty_chart_space_clears_the_selection(window):
     QTest.mouseClick(view.viewport(), Qt.LeftButton, Qt.NoModifier, empty)
     QApplication.processEvents()
     assert window.plan.selected_ids() == []
+
+
+def test_arrows_meet_a_milestone_at_its_corner_not_its_middle(window):
+    from gantry.presentation.gantt import BAR, route
+    from gantry.application.types import DepKind
+    open_sample(window)
+    window.editor.link(3, 4)  # "Fit new units" -> the milestone "Done"
+    window.plan.refresh()
+    bars = window.plan.view.chart.bars
+    points, head = route(DepKind.FINISH_START, bars[3], bars[4])
+    assert points[-1].x() == bars[4].x0 - BAR / 2  # the diamond's left corner
+    assert head.at(0).x() == points[-1].x()
+
+
+def test_the_table_has_no_scroll_bar_but_lines_up_with_the_chart(window):
+    open_sample(window)
+    tree, view = window.plan.tree, window.plan.view
+    assert tree.viewport().height() == view.viewport().height()  # same rows, same room
+    bar = tree.horizontalScrollBar()
+    assert "transparent" in tree.styleSheet() and bar.height() == view.horizontalScrollBar().height()
+
+
+def test_the_new_person_dialog_cannot_be_resized(window):
+    from gantry.presentation.dialogs import ResourceEditor
+    dialog = ResourceEditor(window.editor.project())
+    dialog.show()
+    QApplication.processEvents()
+    assert dialog.minimumSize() == dialog.maximumSize() == dialog.size()

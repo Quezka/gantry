@@ -7,7 +7,7 @@ from PySide6.QtCore import QDate, Qt
 from PySide6.QtGui import QColor, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QDateEdit, QDialog, QDoubleSpinBox, QFrame, QHBoxLayout, QLabel,
-    QLineEdit, QPlainTextEdit, QPushButton, QScrollArea, QSpinBox, QTextBrowser, QToolButton,
+    QLayout, QLineEdit, QPlainTextEdit, QPushButton, QScrollArea, QSpinBox, QTextBrowser, QToolButton,
     QVBoxLayout, QWidget,
 )
 
@@ -457,7 +457,8 @@ class ResourceEditor(QDialog):
         layout.addLayout(rate)
         layout.addLayout(row)
         self.name.setFocus()
-        scrollable(self)
+        self.setSizeGripEnabled(False)
+        layout.setSizeConstraint(QLayout.SetFixedSize)  # a small form: no resizing
 
     def _accept(self):
         if self.name.text().strip():

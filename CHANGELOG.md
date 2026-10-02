@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2] - 2026-10-02
+
+- Fixed: opening the app put a second icon on the dock instead of using the pinned one (the screen-size check forgot the app's desktop name).
+- Fixed: the arrow into a milestone is no longer hidden by its diamond; arrows now meet its corner.
+- The task table no longer shows a scroll bar at the bottom.
+- The new-person dialog can't be resized.
+
 ## [0.2.1] - 2026-10-02
 - Drag empty space in the chart to move around it (a plain click there still clears the selection). The cursor becomes a hand.
 - The grip for resizing the task table is invisible until you point at it, and then only a soft tint.

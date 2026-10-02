@@ -398,8 +398,11 @@ def route(kind: DepKind, pred: BarItem, succ: BarItem) -> tuple[list[QPointF], Q
     sy, ty = pred.cy, succ.cy
     leaves_finish = kind in (DepKind.FINISH_START, DepKind.FINISH_FINISH)
     enters_start = kind in (DepKind.FINISH_START, DepKind.START_START)
-    ax = pred.x1 if leaves_finish else pred.x0
-    bx = succ.x0 if enters_start else succ.x1
+    # A milestone is a diamond centred on its day: arrows meet its corners, not its middle.
+    left_pred = BAR / 2 if pred.task.milestone else 0
+    left_succ = BAR / 2 if succ.task.milestone else 0
+    ax = pred.x1 + left_pred if leaves_finish else pred.x0 - left_pred
+    bx = succ.x0 - left_succ if enters_start else succ.x1 + left_succ
     out = 9 if leaves_finish else -9
     entry = -9 if enters_start else 9
     p1x, ex = ax + out, bx + entry

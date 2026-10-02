@@ -73,6 +73,8 @@ class PlanTree(QTreeWidget):
         self.setIndentation(18)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setEditTriggers(QAbstractItemView.EditKeyPressed)
+        # The bar is there (it takes the same room as the chart's, so rows line up) but drawn
+        # invisible; a wide table still scrolls sideways with Shift + wheel.
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setFrameShape(QFrame.NoFrame)
@@ -128,7 +130,9 @@ class PlanTree(QTreeWidget):
             "QTreeWidget::item{padding:0 6px;margin:0;border-radius:0;}"
             f"QTreeWidget::item:selected{{background:{t.accent_soft};color:{t.text};}}"
             f"QTreeWidget::item:hover{{background:{t.hover};}}"
-            f"QHeaderView::section{{background:{t.surface};}}")
+            f"QHeaderView::section{{background:{t.surface};}}"
+            "QScrollBar:horizontal{background:transparent;}"
+            "QScrollBar::handle:horizontal{background:transparent;}")
 
 
 class PlanPage(Page):
