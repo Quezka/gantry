@@ -415,8 +415,9 @@ def test_the_new_person_dialog_cannot_be_resized(window):
 def test_amounts_carry_the_chosen_currency(window, services):
     from gantry.presentation.formatting import currency_symbol, money, set_currency
     assert currency_symbol() == "€" and "€" in money(1500)
-    assert money(1500).replace("\xa0", " ").count("1,500") + money(1500).count("1.500") + money(1500).count("1 500") >= 1
-    assert "2.50" in money(2.5) or "2,50" in money(2.5)
+    digits = "".join(ch for ch in money(1500) if ch.isdigit())
+    assert digits == "1500"  # however the system groups thousands
+    assert "".join(ch for ch in money(2.5) if ch.isdigit()) == "250"
     services.currency.set("GBP")
     window.open_settings = lambda: None
     set_currency(services.currency.symbol())
