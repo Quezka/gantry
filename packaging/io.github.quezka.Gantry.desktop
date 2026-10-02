@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Gantry
+GenericName=Gantt Chart Planner
+Comment=Gantt charts that open and save GanttProject files
+Exec=gantry %f
+Icon=io.github.quezka.Gantry
+Terminal=false
+Categories=Office;ProjectManagement;Education;
+Keywords=gantt;project;planner;schedule;tasks;ganttproject;school;
+MimeType=application/x-ganttproject;

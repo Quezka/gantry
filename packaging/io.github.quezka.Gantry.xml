@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The .gan file type (GanttProject projects), so file managers can open them with Gantry. -->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-ganttproject">
+    <comment>GanttProject project</comment>
+    <comment xml:lang="ru">Проект GanttProject</comment>
+    <comment xml:lang="it">Progetto GanttProject</comment>
+    <sub-class-of type="application/xml"/>
+    <glob pattern="*.gan"/>
+  </mime-type>
+</mime-info>

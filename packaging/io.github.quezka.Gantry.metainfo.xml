@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata: what Ubuntu App Center / GNOME Software show about Gantry. -->
+<component type="desktop-application">
+  <id>io.github.quezka.Gantry</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>Gantry</name>
+  <summary>Gantt charts that open and save GanttProject files</summary>
+  <developer id="io.github.quezka">
+    <name>Quezka</name>
+  </developer>
+
+  <description>
+    <p>
+      Gantry plans projects as Gantt charts, and works with the files GanttProject uses, so
+      you can move a project between the two without losing anything.
+    </p>
+    <ul>
+      <li>Opens and saves GanttProject (.gan) files; whatever Gantry doesn't use (column
+          layout, custom columns, baselines) is kept as it was</li>
+      <li>Tasks in a tree, with dependencies of all four kinds and lag, milestones,
+          progress, notes and colours</li>
+      <li>Drag bars to move them, drag their edge to change the length, drag a ring to link
+          tasks; every change can be undone</li>
+      <li>Working days, days off and holidays; the critical path; late tasks</li>
+      <li>People with roles, rates, time off and an over-booking warning</li>
+      <li>Export to PNG, SVG, PDF and CSV, with your school's name and emblem if you like</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">io.github.quezka.Gantry.desktop</launchable>
+  <provides>
+    <binary>gantry</binary>
+    <mediatype>application/x-ganttproject</mediatype>
+  </provides>
+
+  <url type="homepage">https://github.com/Quezka/gantry</url>
+  <url type="bugtracker">https://github.com/Quezka/gantry/issues</url>
+
+  <categories>
+    <category>Office</category>
+    <category>ProjectManagement</category>
+    <category>Education</category>
+  </categories>
+  <keywords>
+    <keyword>gantt</keyword>
+    <keyword>project</keyword>
+    <keyword>planner</keyword>
+    <keyword>schedule</keyword>
+    <keyword>GanttProject</keyword>
+  </keywords>
+
+  <content_rating type="oars-1.1"/>
+  <branding>
+    <color type="primary" scheme_preference="light">#e2ecfd</color>
+    <color type="primary" scheme_preference="dark">#0a2a9c</color>
+  </branding>
+
+  <!-- Newest first. Every released version needs an entry; tests enforce it. -->
+  <releases>
+    <release version="0.1.0" date="2026-10-02">
+      <description>
+        <p>First release: GanttProject-compatible Gantt charts with drag-and-drop editing,
+          dependencies, resources, working calendar, critical path, exports and the school's
+          branding.</p>
+      </description>
+    </release>
+  </releases>
+</component>
