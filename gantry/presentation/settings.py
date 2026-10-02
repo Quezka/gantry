@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 
 from . import i18n, theme, uiscale
 from .fit import scrollable
+from ..application.types import CURRENCIES
 from .background import restart_app
 from .i18n import _
 from ..application.inputs import BrandingInput
@@ -70,6 +71,17 @@ class SettingsDialog(QDialog):
         school.body.addLayout(form)
         school.add(self.on_exports)
 
+        money = Card(_("Currency"))
+        self.currency = QComboBox()
+        for code, name, symbol in CURRENCIES:
+            self.currency.addItem(f"{_(name)} ({symbol})", code)
+        self.currency.setCurrentIndex(max(0, self.currency.findData(services.currency.code())))
+        self.currency.currentIndexChanged.connect(
+            lambda _row: services.currency.set(self.currency.currentData()))
+        money.add(self.currency)
+        money.add(label(_("Shown next to costs and daily rates. A project file holds plain "
+                          "numbers, so nothing is converted."), "hint"))
+
         size = Card(_("Interface size"))
         self.scale = QComboBox()
         for choice in uiscale.CHOICES:
@@ -104,6 +116,7 @@ class SettingsDialog(QDialog):
         layout.setSpacing(14)
         layout.addWidget(appearance)
         layout.addWidget(language)
+        layout.addWidget(money)
         layout.addWidget(size)
         layout.addWidget(school)
         layout.addWidget(updates)

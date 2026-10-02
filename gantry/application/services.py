@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .branding import Branding
+from .currency import Currency
 from .editor import Editor
 from .updates import AvailableUpdate, UpdateService
 
@@ -12,6 +13,7 @@ from .updates import AvailableUpdate, UpdateService
 class Services:
     editor: Editor
     branding: Branding
+    currency: Currency
     updates: UpdateService
 
 

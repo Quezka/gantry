@@ -16,7 +16,7 @@ from ..application.records import ProjectRecord, ResourceRecord, TaskRecord
 from ..application.types import KIND_CODES, PALETTE, DepKind
 from . import theme
 from .fit import clamp_dialog, scrollable
-from .formatting import dep_label, day_label, money, pydate, qdate, range_text
+from .formatting import currency_symbol, dep_label, day_label, money, pydate, qdate, range_text
 from .i18n import _, plural
 from .views.common import Segmented, button, caption, label, primary_button
 
@@ -219,7 +219,8 @@ class TaskEditor(QDialog):
                                     placeholderText=_("Notes"))
         self.fixed = QCheckBox(_("Fixed cost"))
         self.fixed.setChecked(bool(task and task.cost_fixed))
-        self.cost = QDoubleSpinBox(maximum=1e9, decimals=2, value=task.cost if task else 0.0)
+        self.cost = QDoubleSpinBox(maximum=1e9, decimals=2, value=task.cost if task else 0.0,
+                                   prefix=f"{currency_symbol()} ")
         self.cost.setEnabled(self.fixed.isChecked())
         self.fixed.toggled.connect(self.cost.setEnabled)
         cost_row = QHBoxLayout()
@@ -420,7 +421,9 @@ class ResourceEditor(QDialog):
         self.phone = QLineEdit(resource.phone if resource else "")
         self.fixed = QCheckBox(_("Charges by the day"))
         self.fixed.setChecked(bool(resource and resource.rate is not None))
-        self.rate = QDoubleSpinBox(maximum=1e9, decimals=2, value=(resource.rate or 0.0) if resource else 0.0)
+        self.rate = QDoubleSpinBox(maximum=1e9, decimals=2, prefix=f"{currency_symbol()} ",
+                                   suffix=_(" / day"),
+                                   value=(resource.rate or 0.0) if resource else 0.0)
         self.rate.setEnabled(self.fixed.isChecked())
         self.fixed.toggled.connect(self.rate.setEnabled)
 

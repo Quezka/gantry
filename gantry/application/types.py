@@ -10,3 +10,5 @@ KIND_CODES = {  # what the interface shows for each kind of dependency
 PALETTE = ("", "#5b5bd6", "#30a46c", "#f5a524", "#e5484d", "#0d9dda", "#d6409f", "#7c8798")
 
 WEEKDAYS = tuple(range(7))  # Monday is 0
+
+from .currency import CURRENCIES  # noqa: E402,F401  (the choices Settings offers)

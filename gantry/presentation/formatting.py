@@ -44,8 +44,24 @@ def days_text(n: int) -> str:
     return i18n.plural(n, "day")
 
 
+_symbol = "€"
+
+
+def set_currency(symbol: str) -> None:
+    """The symbol every amount is shown with (chosen in Settings)."""
+    global _symbol
+    _symbol = symbol
+
+
+def currency_symbol() -> str:
+    return _symbol
+
+
 def money(value: float) -> str:
-    return f"{value:,.0f}".replace(",", " ") if value == int(value) else f"{value:,.2f}".replace(",", " ")
+    """An amount with the chosen currency, in the system's number format: 1,500 € style."""
+    from PySide6.QtCore import QLocale
+    digits = 0 if round(value, 2) == int(round(value, 2)) else 2
+    return QLocale.system().toCurrencyString(float(value), _symbol, digits)
 
 
 def range_text(start: date, end: date, today: date | None = None) -> str:

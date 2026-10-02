@@ -20,6 +20,14 @@ PLURALS = {
 }
 
 MESSAGES = {
+    'Currency': 'Валюта',
+    'Euro': 'Евро',
+    'Pound sterling': 'Фунт стерлингов',
+    'US dollar': 'Доллар США',
+    'Swiss franc': 'Швейцарский франк',
+    'Russian ruble': 'Российский рубль',
+    ' / day': ' / день',
+    'Shown next to costs and daily rates. A project file holds plain numbers, so nothing is converted.': 'Показывается рядом со стоимостью и дневными ставками. В файле проекта хранятся просто числа, поэтому ничего не пересчитывается.',
     'Interface size': 'Размер интерфейса',
     'Automatic': 'Автоматически',
     'Applies after a restart. Automatic makes everything a little smaller on small screens.': 'Применяется после перезапуска. Автоматический режим делает всё немного меньше на маленьких экранах.',

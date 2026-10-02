@@ -410,3 +410,44 @@ def test_the_new_person_dialog_cannot_be_resized(window):
     dialog.show()
     QApplication.processEvents()
     assert dialog.minimumSize() == dialog.maximumSize() == dialog.size()
+
+
+def test_amounts_carry_the_chosen_currency(window, services):
+    from gantry.presentation.formatting import currency_symbol, money, set_currency
+    assert currency_symbol() == "€" and "€" in money(1500)
+    assert money(1500).replace("\xa0", " ").count("1,500") + money(1500).count("1.500") + money(1500).count("1 500") >= 1
+    assert "2.50" in money(2.5) or "2,50" in money(2.5)
+    services.currency.set("GBP")
+    window.open_settings = lambda: None
+    set_currency(services.currency.symbol())
+    assert "£" in money(40)
+    services.currency.set("nonsense")  # junk falls back to the euro
+    assert services.currency.symbol() == "€"
+    set_currency("€")
+
+
+def test_costs_and_rates_show_the_currency_everywhere(window):
+    from gantry.presentation.dialogs import ResourceEditor, TaskEditor, TaskSheet
+    open_sample(window)
+    record = window.editor.project()
+    assert "€" in window.plan.subtitle.text()  # the project's total cost
+    task = record.tasks[3]  # a fixed cost of 1500
+    sheet = TaskSheet(task, record, date(2026, 10, 2))
+    assert any("€" in label.text() for label in sheet.findChildren(type(window.plan.subtitle)))
+    editor = TaskEditor(window.editor, task, record)
+    assert editor.cost.prefix().strip() == "€"
+    person = ResourceEditor(record, record.resources[0])
+    assert person.rate.prefix().strip() == "€" and "day" in person.rate.suffix()
+    window.show_page(window.RESOURCES)
+    assert "€" in window.resources.detail.text()
+    window.show_page(window.PROJECT)
+    assert "€" in window.project.tiles["cost"].text()
+
+
+def test_settings_offers_the_currencies(window, services):
+    from gantry.presentation.settings import SettingsDialog
+    dialog = SettingsDialog(services)
+    codes = [dialog.currency.itemData(i) for i in range(dialog.currency.count())]
+    assert codes == ["EUR", "GBP", "USD", "CHF", "RUB"]
+    dialog.currency.setCurrentIndex(codes.index("USD"))
+    assert services.currency.code() == "USD"

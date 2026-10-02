@@ -15,6 +15,7 @@ from ..application.services import Services
 from . import theme
 from .bridge import ChangeRelay
 from .fit import clamp_window
+from .formatting import set_currency
 from .export import pdf_bytes, png_bytes, svg_bytes
 from .i18n import N_, _
 from .icons import APP_ICON, SCHOOL_EMBLEM
@@ -118,6 +119,7 @@ class MainWindow(QMainWindow):
         self.project = ProjectPage(services)
         self.sidebar = Sidebar()
         self.sidebar.set_branding(services.branding.get())
+        set_currency(services.currency.symbol())
         self.stack = QStackedWidget()
         for i, (page, (icon, text)) in enumerate(zip(
                 (self.home, self.plan, self.resources, self.project), self.PAGES)):
@@ -382,6 +384,8 @@ class MainWindow(QMainWindow):
     def open_settings(self):
         SettingsDialog(self.services, self.updater, self).exec()
         self.sidebar.set_branding(self.services.branding.get())
+        set_currency(self.services.currency.symbol())
+        self._project_changed()  # amounts are redrawn in the new currency
 
     def show_shortcuts(self):
         rows = [("Ctrl+1 … 4", " / ".join(_(t) for _i, t in self.PAGES)),

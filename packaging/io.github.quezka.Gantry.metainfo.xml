@@ -59,6 +59,11 @@
 
   <!-- Newest first. Every released version needs an entry; tests enforce it. -->
   <releases>
+    <release version="0.3.0" date="2026-10-02">
+      <description>
+        <p>Pressing Enter in a one-line box now finishes with it: the cursor stops blinking and the box lets go of the focus. Currency in Settings (euro by default; also pound, dollar, franc, ruble).</p>
+      </description>
+    </release>
     <release version="0.2.2" date="2026-10-02">
       <description>
         <p>Fixed: opening the app put a second icon on the dock instead of using the pinned one (the screen-size check forgot the app's desktop name).</p>

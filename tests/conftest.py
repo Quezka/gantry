@@ -8,6 +8,7 @@ import pytest
 os.environ.setdefault("QT_SCALE_FACTOR", "1")  # tests measure pixels: no automatic scaling
 
 from gantry.application.branding import Branding
+from gantry.application.currency import Currency
 from gantry.application.editor import Editor
 from gantry.application.updates import UpdateService
 from gantry.infrastructure.files import GanFiles
@@ -52,7 +53,7 @@ def installer():
 def services(editor, releases, installer, clock):
     from gantry.application.services import Services
     settings = MemorySettings()
-    return Services(editor, Branding(settings),
+    return Services(editor, Branding(settings), Currency(settings),
                     UpdateService(releases, installer, settings, "0.2.0", clock))
 
 

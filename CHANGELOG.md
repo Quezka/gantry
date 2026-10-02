@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.0] - 2026-10-02
+
+- Pressing Enter in a one-line box now finishes with it: the cursor stops blinking and the box lets go of the focus.
+- Currency in Settings (euro by default; also pound, dollar, franc, ruble). It shows next to costs, fixed costs and daily rates; the project file holds plain numbers, so nothing is converted.
+
 ## [0.2.2] - 2026-10-02
 
 - Fixed: opening the app put a second icon on the dock instead of using the pinned one (the screen-size check forgot the app's desktop name).
