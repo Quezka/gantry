@@ -1,10 +1,12 @@
-"""The suite's icons (quezka_ui.icons), plus what only Gantry has: the school's emblem.
-Everything else is looked up in the shared module, so `icons.svg`, `icons.APP_ICON` and the rest keep working."""
+"""The suite's icons (quezka_ui.icons). This module points the shared one at this app's own icon, and
+looks everything else up there, so `icons.svg`, `icons.APP_ICON` and the rest keep working."""
 from pathlib import Path
 
 from quezka_ui import icons as _shared
 
+APP_ICON = Path(__file__).resolve().parent.parent / "assets" / "icon.svg"
 SCHOOL_EMBLEM = Path(__file__).resolve().parent.parent / "assets" / "school.png"
+_shared.configure(APP_ICON, "gantry")
 
 
 def __getattr__(name):

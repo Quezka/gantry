@@ -4,6 +4,7 @@ Python 3.10+ / PySide6 desktop app (Linux + Windows): Gantt charts that open and
 `.gan` files. Sibling of Quire (`../quire`), Ligature and Bivouac: same look, toolkit and release
 process; school-branded (I.T.S. "E. Alessandrini", blue `#0066ff` family, emblem `assets/school.png`).
 
+- The look comes from the shared `quezka-ui` package (`../suite-kit`); `presentation/theme.py` sets Gantry's school brand on it (`set_brand`) and aliases it, the other shared modules are aliases too. Change shared things in the kit; catalogues (`locales/`), the school emblem and branding stay here.
 - Layers: `gantry/domain` → `gantry/application` → `gantry/infrastructure` + `gantry/presentation`; wired in `gantry/bootstrap.py`. `tests/test_architecture.py` enforces it; the UI never imports the domain (enums come through `application/types.py`).
 - Run: `.venv/bin/gantry --demo`. Test: `.venv/bin/python -m pytest -q` (UI tests run offscreen). Real-GanttProject check: `GANTRY_TEST_GP=1`.
 - Domain: `Calendar` works in working-day numbers (`index`/`date_at`); `schedule` rolls summaries up, pushes followers later (never earlier) and finds the critical path; `structure` indents/moves. A task's `duration` is working days; `Calendar.last_day` is the displayed end, `end_exclusive` what GanttProject calls the end.
