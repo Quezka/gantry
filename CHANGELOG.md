@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0] - 2026-10-26
+
+- **Task priority**, as in GanttProject: lowest, low, normal, high or highest, set in the task window and shown in a new
+  Priority column. It is stored the way GanttProject stores it, so the file still opens there with the same priorities.
+- The task list follows the width of its pane: the task name column takes whatever room the other columns leave, so it
+  grows and shrinks with the splitter, the sidebar and the window instead of keeping a fixed width.
+
 ## [0.4.0] - 2026-10-05
 
 - Italian translation of the whole interface (Language in Settings; Italian systems start in Italian).

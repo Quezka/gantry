@@ -12,3 +12,7 @@ PALETTE = ("", "#5b5bd6", "#30a46c", "#f5a524", "#e5484d", "#0d9dda", "#d6409f",
 WEEKDAYS = tuple(range(7))  # Monday is 0
 
 from .currency import CURRENCIES  # noqa: E402,F401  (the choices Settings offers)
+
+# GanttProject's task priorities (what a .gan file stores): 0 lowest ... 4 highest, 2 normal.
+PRIORITIES = (0, 1, 2, 3, 4)
+PRIORITY_MARKS = {0: "▼▼", 1: "▼", 2: "", 3: "▲", 4: "▲▲"}

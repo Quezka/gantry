@@ -22,7 +22,7 @@ from ..domain import (
 VERSION = "3.3.3309"
 WEEK = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")  # the order of Python's weekday()
 TASK_ATTRS = {"id", "uid", "name", "color", "meeting", "start", "duration", "complete", "expand",
-              "webLink", "cost-manual-value", "cost-calculated"}
+              "webLink", "cost-manual-value", "cost-calculated", "priority"}
 RESOURCE_ATTRS = {"id", "name", "function", "contacts", "phone"}
 ROOT_KEPT = {"name", "company", "webLink"}
 
@@ -181,7 +181,8 @@ class GanFiles:
                     complete=max(0, min(100, _int(el.get("complete")))), parent=parent,
                     color=el.get("color", ""), milestone=_bool(el.get("meeting")),
                     expanded=_bool(el.get("expand"), True), notes=notes,
-                    web_link=el.get("webLink", ""), cost=cost, uid=el.get("uid", ""),
+                    web_link=el.get("webLink", ""), cost=cost,
+                    priority=max(0, min(4, _int(el.get("priority"), 2))), uid=el.get("uid", ""),
                     extras=extras, raw=tuple(raw))
         out.append(task)
         for c in children:
@@ -275,6 +276,8 @@ class GanFiles:
             "complete": str(t.complete), "expand": str(t.expanded).lower()})
         if t.web_link:
             el.set("webLink", t.web_link)
+        if t.priority != 2:  # normal is what a missing attribute means
+            el.set("priority", str(t.priority))
         el.set("cost-manual-value", f"{t.cost:g}" if t.cost is not None else "0")
         el.set("cost-calculated", "false" if t.cost is not None else "true")
         for key, value in t.extras.items():

@@ -17,12 +17,12 @@ from ...application.records import ProjectRecord, TaskRecord
 from ...application.services import Services
 from .. import theme
 from ..dialogs import TaskEditor, TaskSheet
-from ..formatting import money, short_date, table_date
+from ..formatting import money, priority_cell, short_date, table_date
 from ..gantt import HEADER, ROW, ZOOM_ORDER, ZOOMS, GanttView, timeline_for, visible_rows
 from ..i18n import C_, N_, _, plural
 from .common import Card, Page, Segmented, button, icon_button, label, primary_button
 
-NAME, START, END, DAYS, DONE = range(5)
+NAME, START, END, DAYS, DONE, PRIORITY = range(6)
 ID = Qt.UserRole
 ZOOM_LABELS = {"day": N_("Days"), "week": N_("Weeks"), "month": N_("Months"),
                "quarter": N_("Quarters")}
@@ -66,8 +66,8 @@ class PlanTree(QTreeWidget):
         self.setDropIndicatorShown(True)
         self.setDragDropMode(QAbstractItemView.InternalMove)
         self.setDefaultDropAction(Qt.MoveAction)
-        self.setColumnCount(5)
-        self.setHeaderLabels([_("Task"), _("Start"), _("End"), _("Days"), _("Done")])
+        self.setColumnCount(6)
+        self.setHeaderLabels([_("Task"), _("Start"), _("End"), _("Days"), _("Done"), _("Priority")])
         self.setUniformRowHeights(True)
         self.setRootIsDecorated(True)
         self.setIndentation(18)
@@ -84,9 +84,13 @@ class PlanTree(QTreeWidget):
         header.setFixedHeight(HEADER)
         header.setStretchLastSection(False)
         header.setSectionResizeMode(QHeaderView.Interactive)
+        # The task name takes whatever room the other columns leave, so the list follows the pane
+        # (the splitter, a collapsed sidebar, the window) instead of keeping a width it was given.
+        header.setSectionResizeMode(NAME, QHeaderView.Stretch)
+        header.setMinimumSectionSize(48)
         header.setSectionsMovable(False)
         header.setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        for column, width in ((NAME, 230), (START, 78), (END, 78), (DAYS, 50), (DONE, 80)):
+        for column, width in ((NAME, 230), (START, 78), (END, 78), (DAYS, 50), (DONE, 80), (PRIORITY, 84)):
             self.setColumnWidth(column, int(QSettings().value(f"plan/col{column}", width)))
         header.sectionResized.connect(
             lambda i, _o, w: QSettings().setValue(f"plan/col{i}", w))
@@ -355,6 +359,7 @@ class PlanPage(Page):
             item.setText(START, table_date(task.start, today))
             item.setText(END, table_date(task.end, today) if not task.milestone else "")
             item.setText(DAYS, str(task.duration) if not task.milestone else "")
+            item.setText(PRIORITY, priority_cell(task.priority))
             item.setToolTip(NAME, f"{task.wbs}  {task.name}")
             item.setFlags(item.flags() | Qt.ItemIsEditable)
             item.setSizeHint(NAME, QSize(0, ROW))

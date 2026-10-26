@@ -39,6 +39,17 @@ def test_a_dependency_is_stored_on_the_follower():
     assert (d.pred, d.lag, d.strong) == (2, 1, False)
 
 
+def test_priority_is_read_and_written_the_way_ganttproject_does():
+    from dataclasses import replace
+    p = files.read(str(SAMPLE))
+    assert p.task(1).priority == 1 and p.task(0).priority == 2  # 1 is "low", a missing one is normal
+    high = p.replace_task(replace(p.task(0), priority=4))
+    out = ET.fromstring(files.encode(high))
+    assert out.find(".//task[@id='0']").get("priority") == "4"
+    assert out.find(".//task[@id='4']").get("priority") is None  # normal stays unwritten
+    assert files.decode(files.encode(high)).task(0).priority == 4
+
+
 def test_costs_follow_the_calculated_flag():
     p = files.read(str(SAMPLE))
     assert p.task(3).cost == 1500 and p.task(0).cost is None

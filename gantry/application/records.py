@@ -45,6 +45,7 @@ class TaskRecord:
     web_link: str
     cost: float
     cost_fixed: bool
+    priority: int
     deps: tuple[DepRecord, ...]
     assignments: tuple[AssignmentRecord, ...]
     successors: tuple[int, ...]

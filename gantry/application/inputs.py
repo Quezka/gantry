@@ -33,6 +33,7 @@ class TaskInput:
     notes: str = ""
     web_link: str = ""
     cost: float | None = None
+    priority: int = 2
     deps: tuple[DepInput, ...] = ()
     assignments: tuple[AssignInput, ...] = field(default_factory=tuple)
 

@@ -257,4 +257,10 @@ MESSAGES = {
     '{n} late': 'просрочено: {n}',
     '{page}: start or open a project first': '{page}: сначала создайте или откройте проект',
     '{percent}% done': 'выполнено {percent}%',
+    'Priority': 'Приоритет',
+    'Lowest': 'Самый низкий',
+    'Low': 'Низкий',
+    'Normal': 'Обычный',
+    'High': 'Высокий',
+    'Highest': 'Самый высокий',
 }

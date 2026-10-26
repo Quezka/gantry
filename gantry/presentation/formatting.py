@@ -6,7 +6,8 @@ from datetime import date
 from PySide6.QtCore import QDate
 
 from . import i18n
-from .i18n import _
+from ..application.types import PRIORITY_MARKS
+from .i18n import N_, _
 
 
 def qdate(d: date) -> QDate:
@@ -73,3 +74,15 @@ def range_text(start: date, end: date, today: date | None = None) -> str:
 def dep_label(kind_code: str) -> str:
     return {"FS": _("finish → start"), "SS": _("start → start"),
             "FF": _("finish → finish"), "SF": _("start → finish")}[kind_code]
+
+
+PRIORITY_LABELS = {0: N_("Lowest"), 1: N_("Low"), 2: N_("Normal"), 3: N_("High"), 4: N_("Highest")}
+
+
+def priority_name(priority: int) -> str:
+    return _(PRIORITY_LABELS.get(priority, PRIORITY_LABELS[2]))
+
+
+def priority_cell(priority: int) -> str:
+    """What the table shows: nothing for a normal task, an arrow and the name otherwise."""
+    return "" if priority == 2 else f"{PRIORITY_MARKS.get(priority, '')} {priority_name(priority)}"

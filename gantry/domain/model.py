@@ -14,6 +14,10 @@ from typing import Mapping
 from .calendar import Calendar
 
 
+PRIORITIES = (0, 1, 2, 3, 4)
+NORMAL_PRIORITY = 2
+
+
 class DepKind(Enum):
     """The value is what a .gan file stores."""
     START_START = 1
@@ -45,6 +49,7 @@ class Task:
     notes: str = ""
     web_link: str = ""
     cost: float | None = None  # a fixed cost; None: worked out from the people on it
+    priority: int = 2  # GanttProject's scale: 0 lowest, 1 low, 2 normal, 3 high, 4 highest
     deps: tuple[Dependency, ...] = ()
     uid: str = ""
     extras: Mapping[str, str] = field(default_factory=dict)  # attributes Gantry doesn't use

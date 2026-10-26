@@ -13,10 +13,12 @@ from PySide6.QtWidgets import (
 
 from ..application.inputs import AssignInput, DepInput, ResourceInput, TaskInput
 from ..application.records import ProjectRecord, ResourceRecord, TaskRecord
-from ..application.types import KIND_CODES, PALETTE, DepKind
+from ..application.types import KIND_CODES, PALETTE, PRIORITIES, DepKind
 from . import theme
 from .fit import clamp_dialog, scrollable
-from .formatting import currency_symbol, dep_label, day_label, money, pydate, qdate, range_text
+from .formatting import (
+    currency_symbol, day_label, dep_label, money, priority_name, pydate, qdate, range_text,
+)
 from .i18n import _, plural
 from .views.common import Segmented, button, caption, label, primary_button
 
@@ -214,6 +216,10 @@ class TaskEditor(QDialog):
         when.addWidget(self.note)
 
         self.colors = Swatches(task.color if task else "")
+        self.priority = QComboBox()
+        for value in PRIORITIES:
+            self.priority.addItem(priority_name(value), value)
+        self.priority.setCurrentIndex(self.priority.findData(task.priority if task else 2))
         self.link = QLineEdit(task.web_link if task else "", placeholderText="https://…")
         self.notes = QPlainTextEdit(task.notes if task else "", minimumHeight=80,
                                     placeholderText=_("Notes"))
@@ -267,6 +273,8 @@ class TaskEditor(QDialog):
         form.addWidget(self.milestone)
         form.addWidget(caption(_("Colour")))
         form.addWidget(self.colors)
+        form.addWidget(caption(_("Priority")))
+        form.addWidget(self.priority, 0, Qt.AlignLeft)
         form.addWidget(caption(_("Waits for")))
         form.addLayout(self.deps_box)
         form.addWidget(add_dep, 0, Qt.AlignLeft)
@@ -391,7 +399,7 @@ class TaskEditor(QDialog):
             duration=0 if milestone else self.duration.value(), complete=self.complete.value(),
             color=self.colors.value, milestone=milestone, notes=self.notes.toPlainText(),
             web_link=self.link.text(), cost=self.cost.value() if self.fixed.isChecked() else None,
-            deps=deps, assignments=people)
+            priority=self.priority.currentData(), deps=deps, assignments=people)
 
     def _accept(self):
         if not self.name.text().strip():

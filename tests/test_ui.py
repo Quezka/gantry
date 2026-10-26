@@ -49,6 +49,41 @@ def rows(window):
     return out
 
 
+def test_priority_shows_in_the_table_and_the_task_dialog(window):
+    from PySide6.QtWidgets import QTreeWidgetItemIterator
+
+    from gantry.application.inputs import TaskInput
+    open_sample(window)
+    tree = window.plan.tree
+
+    def cells():
+        out, it = [], QTreeWidgetItemIterator(tree)
+        while it.value():
+            out.append(it.value().text(5))
+            it += 1
+        return out
+
+    assert any("Low" in c for c in cells())  # the sample's low-priority task
+    task = window.editor.project().tasks[-1]
+    window.editor.update_task(task.id, TaskInput(task.name, task.start, task.duration, priority=4))
+    window.plan.refresh()
+    assert any("Highest" in c for c in cells())
+
+
+def test_the_task_column_follows_the_width_of_its_pane(window):
+    open_sample(window)
+    plan = window.plan
+    window.resize(1500, 800)
+    plan.splitter.setSizes([700, 800])
+    QApplication.processEvents()
+    wide = plan.tree.columnWidth(0)
+    plan.splitter.setSizes([420, 1080])
+    QApplication.processEvents()
+    narrow = plan.tree.columnWidth(0)
+    assert wide > narrow + 100  # the name column gave up the room, the others kept theirs
+    assert plan.tree.columnWidth(1) == 78
+
+
 def test_pages_wait_for_a_project(window):
     assert not window.sidebar.group.button(window.PLAN).isEnabled()
     window.show_page(window.PLAN)

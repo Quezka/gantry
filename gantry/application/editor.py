@@ -193,7 +193,7 @@ class Editor:
                 expanded=t.expanded, critical=t.id in critical,
                 late=t.complete < 100 and end < today and not summary,
                 notes=t.notes, web_link=t.web_link, cost=costs[t.id],
-                cost_fixed=t.cost is not None,
+                cost_fixed=t.cost is not None, priority=t.priority,
                 deps=tuple(DepRecord(d.pred, names.get(d.pred, "?"), d.kind, d.lag, d.strong)
                            for d in t.deps if d.pred in names),
                 assignments=tuple(AssignmentRecord(a.resource, who.get(a.resource, "?"), a.load,
@@ -368,7 +368,7 @@ class Editor:
         changes = dict(
             name=input.name.strip() or task.name, color=input.color, notes=input.notes,
             web_link=input.web_link.strip(), cost=input.cost, deps=tuple(deps),
-            milestone=milestone)
+            milestone=milestone, priority=max(0, min(4, input.priority)))
         if not summary:
             changes.update(start=p.calendar.next_working(input.start),
                            duration=0 if milestone else max(1, input.duration),

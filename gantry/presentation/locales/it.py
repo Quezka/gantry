@@ -256,4 +256,10 @@ MESSAGES = {
     '{n} late': '{n} in ritardo',
     '{page}: start or open a project first': '{page}: crea o apri prima un progetto',
     '{percent}% done': '{percent}% completato',
+    'Priority': 'Priorità',
+    'Lowest': 'Minima',
+    'Low': 'Bassa',
+    'Normal': 'Normale',
+    'High': 'Alta',
+    'Highest': 'Massima',
 }
