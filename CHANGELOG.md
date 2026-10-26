@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.1] - 2026-10-26
+
+- The Resources and Project pages scroll when the window is short instead of making it taller than a small laptop
+  screen.
+
 ## [0.5.0] - 2026-10-26
 
 - **Task priority**, as in GanttProject: lowest, low, normal, high or highest, set in the task window and shown in a new

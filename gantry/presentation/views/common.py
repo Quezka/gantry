@@ -11,6 +11,27 @@ from PySide6.QtWidgets import (
 from .. import theme
 
 
+def scrolling(content) -> "QScrollArea":
+    """A widget (or layout) inside a frameless scroll area, so a page taller than the window scrolls
+    instead of forcing the window to grow (small laptop screens)."""
+    from PySide6.QtWidgets import QFrame as _Frame, QLayout, QScrollArea
+
+    if isinstance(content, QLayout):
+        inner = QWidget()
+        inner.setObjectName("scrollBody")
+        inner.setStyleSheet("#scrollBody { background: transparent; }")
+        content.setContentsMargins(0, 0, 8, 0)
+        inner.setLayout(content)
+        content = inner
+    area = QScrollArea()
+    area.setWidgetResizable(True)
+    area.setFrameShape(_Frame.NoFrame)
+    area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    area.setWidget(content)
+    area.viewport().setAutoFillBackground(False)
+    return area
+
+
 class Page(QWidget):
     """A top-level page: padded, themed background, header row on top."""
 

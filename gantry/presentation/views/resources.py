@@ -16,7 +16,7 @@ from .. import theme
 from ..dialogs import ResourceEditor
 from ..formatting import money, pydate, qdate, range_text, short_date
 from ..i18n import _, plural
-from .common import Card, Page, button, caption, icon_button, label, primary_button
+from .common import Card, Page, button, caption, icon_button, label, primary_button, scrolling
 
 
 class WorkloadChart(QWidget):
@@ -148,7 +148,7 @@ class ResourcesPage(Page):
         split.addWidget(left)
         split.addWidget(right)
         split.setSizes([320, 760])
-        self.root.addWidget(split, 1)
+        self.root.addWidget(scrolling(split), 1)
 
     def refresh(self):
         if not self.editor.is_open:

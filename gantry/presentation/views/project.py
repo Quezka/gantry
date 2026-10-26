@@ -11,7 +11,7 @@ from ...application.inputs import ProjectInfo
 from ...application.services import Services
 from ..formatting import money, pydate, short_date
 from ..i18n import _, plural, weekday_names
-from .common import Card, Page, button, caption, icon_button, label
+from .common import Card, Page, button, caption, icon_button, label, scrolling
 
 
 def tile(caption_text: str) -> tuple[QWidget, "QLabel"]:  # noqa: F821
@@ -117,7 +117,7 @@ class ProjectPage(Page):
         columns.addLayout(left, 1)
         columns.addLayout(right, 1)
         self.root.addWidget(stats)
-        self.root.addLayout(columns, 1)
+        self.root.addWidget(scrolling(columns), 1)
 
     def refresh(self):
         if not self.editor.is_open:
