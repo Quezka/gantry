@@ -3,28 +3,20 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
+from quezka_ui.app import create_application as _create
 
-from .. import APP_ID
+from .. import APP_ID, APP_NAME
 from ..application.services import Services
-from . import i18n, leave_on_enter, theme, uiscale
-from .icons import APP_ICON
+
+ICON = Path(__file__).resolve().parent.parent / "assets" / "icon.svg"
 
 
 def create_application(argv: list[str]) -> QApplication:
-    QApplication.setApplicationName("Gantry")
-    QApplication.setOrganizationName("Gantry")
-    QApplication.setDesktopFileName(APP_ID)
-    if QApplication.instance() is None:
-        uiscale.apply_before_app()  # Qt reads the scale factor once, as the app is created
-    app = QApplication.instance() or QApplication(argv)
-    app.setStyle("Fusion")
-    leave_on_enter.install(app)  # Enter in a one-line box lets go of it
-    app.setWindowIcon(QIcon(str(APP_ICON)))
-    i18n.install(app=app)  # before any window is built: texts are translated as they're made
-    theme.install(app)
-    return app
+    from . import theme  # noqa: F401  (sets the school's brand on the shared theme before it is installed)
+
+    return _create(argv, name=APP_NAME, app_id=APP_ID, icon=ICON,
+                   locale_package="gantry.presentation.locales")
 
 
 def run(services: Services, argv: list[str], file: Path | None = None,
