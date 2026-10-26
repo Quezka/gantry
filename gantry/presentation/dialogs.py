@@ -34,7 +34,7 @@ class TaskSheet(QDialog):
         super().__init__(parent)
         self.action: str | None = None
         self.setWindowTitle(task.name)
-        self.setMinimumWidth(520)
+        self.setMinimumWidth(442)
         chips = QHBoxLayout()
         chips.setSpacing(6)
         if task.milestone:
@@ -163,7 +163,7 @@ class TaskEditor(QDialog):
         self.project = project
         self.after = after
         self.setWindowTitle(_("Edit task") if task else _("New task"))
-        self.setMinimumWidth(580)
+        self.setMinimumWidth(493)
         today = editor.today()
         summary = bool(task and task.summary)
         start = task.start if task else today
@@ -414,7 +414,7 @@ class ResourceEditor(QDialog):
                  parent=None):
         super().__init__(parent)
         self.setWindowTitle(_("Edit person") if resource else _("New person"))
-        self.setMinimumWidth(440)
+        self.setMinimumWidth(374)
         self.name = QLineEdit(resource.name if resource else "", objectName="titleEdit",
                               placeholderText=_("Name"))
         self.role = QComboBox()

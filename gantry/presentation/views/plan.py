@@ -164,7 +164,7 @@ class PlanPage(Page):
 
         # ---- toolbar
         self.quick = QLineEdit(placeholderText=_("Add a task… press Enter"), objectName="search")
-        self.quick.setMinimumWidth(240)
+        self.quick.setMinimumWidth(204)
         self.quick.setMaximumWidth(320)
         self.quick.returnPressed.connect(self._quick_add)
         self.zoom_control = Segmented([(k, _(ZOOM_LABELS[k])) for k in ZOOM_ORDER])
@@ -213,8 +213,8 @@ class PlanPage(Page):
         self.splitter = QSplitter(Qt.Horizontal, objectName="planSplit")
         self.splitter.setChildrenCollapsible(False)
         self.splitter.setHandleWidth(7)
-        self.tree.setMinimumWidth(180)
-        self.view.setMinimumWidth(240)
+        self.tree.setMinimumWidth(153)
+        self.view.setMinimumWidth(204)
         self.splitter.addWidget(self.tree)
         self.splitter.addWidget(self.view)
         self.splitter.setStretchFactor(1, 1)
