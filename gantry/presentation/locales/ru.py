@@ -20,6 +20,7 @@ PLURALS = {
 }
 
 MESSAGES = {
+    'High contrast (black and white, thick lines)': 'Высокая контрастность (чёрное и белое, толстые линии)',
     'Currency': 'Валюта',
     'Euro': 'Евро',
     'Pound sterling': 'Фунт стерлингов',

@@ -28,6 +28,10 @@ class SettingsDialog(QDialog):
         mode.set_value(manager.mode)
         mode.changed.connect(manager.set_mode)
         appearance.add(mode)
+        contrast = QCheckBox(_("High contrast (black and white, thick lines)"))
+        contrast.setChecked(manager.contrast)
+        contrast.toggled.connect(manager.set_contrast)
+        appearance.add(contrast)
         appearance.add(label(_("Exported pictures are always drawn on white."), "hint"))
 
         language = Card(_("Language"))
