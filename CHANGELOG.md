@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.0] - 2026-10-26
+
+- The look now comes from the suite's shared toolkit (the school's blue and red kept): darker text and firmer borders, larger captions, and a High contrast option in Settings.
+
 ## [0.5.1] - 2026-10-26
 
 - The Resources and Project pages scroll when the window is short instead of making it taller than a small laptop
