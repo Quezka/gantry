@@ -263,4 +263,6 @@ MESSAGES = {
     'Normal': 'Normale',
     'High': 'Alta',
     'Highest': 'Massima',
+    'Zoom in (Ctrl+=, or Ctrl and the wheel, or pinch)': 'Zoom avanti (Ctrl+=, oppure Ctrl e la rotellina, oppure pizzica)',
+    'Zoom out (Ctrl+-, or Ctrl and the wheel, or pinch)': 'Zoom indietro (Ctrl+-, oppure Ctrl e la rotellina, oppure pizzica)',
 }

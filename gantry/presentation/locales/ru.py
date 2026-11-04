@@ -264,4 +264,6 @@ MESSAGES = {
     'Normal': 'Обычный',
     'High': 'Высокий',
     'Highest': 'Самый высокий',
+    'Zoom in (Ctrl+=, or Ctrl and the wheel, or pinch)': 'Приблизить (Ctrl+=, или Ctrl и колесо, или щипок)',
+    'Zoom out (Ctrl+-, or Ctrl and the wheel, or pinch)': 'Отдалить (Ctrl+-, или Ctrl и колесо, или щипок)',
 }

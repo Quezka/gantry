@@ -1,3 +1,4 @@
+from dataclasses import replace
 import os
 from datetime import date
 
@@ -487,3 +488,74 @@ def test_settings_offers_the_currencies(window, services):
     assert codes == ["EUR", "GBP", "USD", "CHF", "RUB"]
     dialog.currency.setCurrentIndex(codes.index("USD"))
     assert services.currency.code() == "USD"
+
+
+def test_the_table_and_the_chart_scroll_as_one(window):
+    window.new_project()
+    for _i in range(80):
+        window.editor.add_task()
+    window.resize(1100, 600)
+    plan = window.plan
+    plan.refresh()
+    QApplication.processEvents()
+    tree, chart = plan.tree.verticalScrollBar(), plan.view.verticalScrollBar()
+    assert tree.maximum() == chart.maximum() > 0
+
+    def lined_up(row):  # a row of the table and its bar are at the same height on screen
+        top = plan.tree.viewport().mapToGlobal(plan.tree.visualItemRect(plan.tree.topLevelItem(row)).topLeft())
+        return top.y() == plan.view.viewport().mapToGlobal(plan.view.mapFromScene(0, row * 34)).y()
+
+    tree.setValue(700)
+    QApplication.processEvents()
+    assert chart.value() == 700 and lined_up(30)
+    chart.setValue(1500)
+    QApplication.processEvents()
+    assert tree.value() == 1500 and lined_up(60)
+    chart.setValue(chart.maximum())
+    QApplication.processEvents()
+    assert tree.value() == tree.maximum() and lined_up(79)
+
+
+def test_zoom_goes_in_small_steps_and_keeps_the_day_under_the_pointer(window):
+    open_sample(window)
+    plan = window.plan
+    plan.set_zoom("week")
+    assert plan.ppd == 16
+    bar = plan.view.horizontalScrollBar()
+    bar.setValue(300)
+    day = (bar.value() + 200) / plan.ppd
+    plan.zoom_by(1.2, 200)
+    assert plan.ppd == pytest.approx(19.2) and plan.view.chart.tl.ppd == pytest.approx(19.2)
+    assert (bar.value() + 200) / plan.ppd == pytest.approx(day, abs=0.1)
+    assert plan.zoom == "week"  # still closest to weeks
+    for _i in range(60):
+        plan.zoom_in_btn.click()
+    assert plan.ppd == 120 and plan.zoom == "day"
+    for _i in range(60):
+        plan.zoom_out_btn.click()
+    assert plan.ppd == 1 and plan.zoom == "quarter"
+    plan.set_zoom("month")
+    assert plan.ppd == pytest.approx(6) and plan.zoom == "month"
+    plan.fit()
+    days = (plan.record.finish - plan.record.start).days + 14
+    assert plan.ppd == pytest.approx(max(plan.view.viewport().width(), 200) / days)
+
+
+def test_a_main_task_shows_its_colour(window):
+    from PySide6.QtGui import QImage, QPainter
+    open_sample(window)
+    plan = window.plan
+    project = window.editor.project()
+    summary = next(t for t in project.tasks if t.summary)
+    plan.view.chart.bars  # built by the refresh above
+    bar = plan.view.chart.bars[summary.id]
+    bar.task = replace(bar.task, color="#ff00aa", complete=0)
+    r = bar.boundingRect()
+    image = QImage(int(r.width()) + 2, int(r.height()) + 2, QImage.Format_ARGB32)
+    image.fill(0)
+    p = QPainter(image)
+    p.translate(-r.left(), -r.top())
+    bar.paint(p, None)
+    p.end()
+    x, y = int(bar.bar_rect().center().x() - r.left()), int(bar.cy - 18 / 2 + 6 - r.top())
+    assert image.pixelColor(x, y).name() == "#ff00aa"

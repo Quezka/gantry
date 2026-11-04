@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from PySide6.QtCore import QPointF, QRectF, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QBrush, QColor, QFont, QFontMetricsF, QPainter, QPainterPath, QPen, QPolygonF,
 )
@@ -27,6 +27,8 @@ HEADER = 46
 BAR = 18
 ZOOMS = {"day": 40.0, "week": 16.0, "month": 6.0, "quarter": 2.4}
 ZOOM_ORDER = ("day", "week", "month", "quarter")
+MIN_PPD, MAX_PPD = 1.0, 120.0  # pixels per day, whatever way you zoom
+WHEEL_ZOOM = 1.2
 LABEL_PAD = 8
 
 
@@ -230,13 +232,15 @@ class BarItem(QGraphicsObject):
         elif task.summary:
             h = 8
             body = QRectF(r.left(), self.cy - BAR / 2 + 2, r.width(), h)
-            color = QColor(t.danger) if crit else QColor(t.muted)
+            color = QColor(t.danger) if crit else QColor(base) if task.color else QColor(t.muted)
+            pale = QColor(color)  # like a task's bar: what's done is solid, the rest paler
+            pale.setAlphaF(0.45 if task.complete else 1.0)
             p.setPen(Qt.NoPen)
-            p.setBrush(color)
+            p.setBrush(pale)
             p.drawRoundedRect(body, 2, 2)
             done = QRectF(body.left(), body.top(), body.width() * task.complete / 100, h)
             if task.complete:
-                p.setBrush(QColor(t.accent))
+                p.setBrush(color)
                 p.drawRoundedRect(done, 2, 2)
             for x, sign in ((body.left(), 1), (body.right(), -1)):
                 tri = QPolygonF([QPointF(x, body.top()), QPointF(x + sign * 7, body.top()),
@@ -446,7 +450,7 @@ class ChartScene(QGraphicsScene):
         self.clear()
         self.bars = {}
         self.tl, self.t, self.record, self.rows, self.today = tl, t, record, rows, today
-        self.setSceneRect(0, 0, tl.width, max(len(rows), 1) * ROW + ROW)
+        self.setSceneRect(0, 0, tl.width, max(len(rows), 1) * ROW)  # as tall as the table: their bars must have the same range
         index = {task.id: i for i, task in enumerate(rows)}
         for i, task in enumerate(rows):
             bar = BarItem(self.owner, task, i, tl, t, critical_on, task.id in selected)
@@ -525,7 +529,7 @@ class GanttView(QGraphicsView):
     activated = Signal(int)
     menuRequested = Signal(int, object)
     selectionPicked = Signal(object, bool)  # task id (or None), add to selection
-    zoomRequested = Signal(int)  # +1 / -1
+    zoomRequested = Signal(float, float)  # by how much (1.2 is 20% bigger), around which x of the viewport
     scrolledV = Signal(int)
 
     def __init__(self, parent=None):
@@ -632,9 +636,17 @@ class GanttView(QGraphicsView):
             return
         super().mouseReleaseEvent(e)
 
+    def viewportEvent(self, e):
+        if e.type() == QEvent.NativeGesture and e.gestureType() == Qt.ZoomNativeGesture:  # pinching on a trackpad
+            self.zoomRequested.emit(1.0 + e.value(), e.position().x())
+            e.accept()
+            return True
+        return super().viewportEvent(e)
+
     def wheelEvent(self, e):
         if e.modifiers() & Qt.ControlModifier:
-            self.zoomRequested.emit(1 if e.angleDelta().y() > 0 else -1)
+            # 1.2 for a click of a wheel; a trackpad sends many small steps that add up the same.
+            self.zoomRequested.emit(WHEEL_ZOOM ** (e.angleDelta().y() / 120), e.position().x())
             e.accept()
         elif e.modifiers() & Qt.ShiftModifier or abs(e.angleDelta().x()) > abs(e.angleDelta().y()):
             bar = self.horizontalScrollBar()

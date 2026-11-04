@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.0] - 2026-11-04
+
+### Added
+- **Zoom in small steps**: Ctrl and the wheel, a pinch on the trackpad, the new + and - buttons or Ctrl+= and Ctrl+-, keeping still the day under the pointer. Days, Weeks, Months and Quarters stay as quick levels, and Fit now fits exactly.
+
+### Fixed
+- **The task list and the chart scroll together.** The list counted rows and the chart pixels, so scrolling one barely moved the other. They now line up row by row, all the way to the bottom.
+- **Main tasks show their colour** on the chart, not only their subtasks.
+
 ## [0.8.0] - 2026-11-04
 
 ### Changed

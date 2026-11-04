@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from math import log
 
 from PySide6.QtCore import QPoint, QRect, QSettings, QSize, Qt, Signal
 from PySide6.QtGui import QAction, QBrush, QColor, QCursor, QFont, QIcon, QKeySequence, QPainter, QPixmap, QShortcut
@@ -18,7 +19,7 @@ from ...application.services import Services
 from .. import theme
 from ..dialogs import TaskEditor, TaskSheet
 from ..formatting import money, priority_cell, short_date, table_date
-from ..gantt import HEADER, ROW, ZOOM_ORDER, ZOOMS, GanttView, timeline_for, visible_rows
+from ..gantt import HEADER, MAX_PPD, MIN_PPD, ROW, WHEEL_ZOOM, ZOOM_ORDER, ZOOMS, GanttView, timeline_for, visible_rows
 from ..i18n import C_, N_, _, plural
 from .common import Card, Page, Segmented, button, icon_button, label, primary_button
 
@@ -69,6 +70,7 @@ class PlanTree(QTreeWidget):
         self.setColumnCount(6)
         self.setHeaderLabels([_("Task"), _("Start"), _("End"), _("Days"), _("Done"), _("Priority")])
         self.setUniformRowHeights(True)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)  # the chart's bar counts pixels: both must
         self.setRootIsDecorated(True)
         self.setIndentation(18)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -170,6 +172,11 @@ class PlanPage(Page):
         self.zoom_control = Segmented([(k, _(ZOOM_LABELS[k])) for k in ZOOM_ORDER])
         self.zoom_control.set_value(self.zoom)
         self.zoom_control.changed.connect(self.set_zoom)
+        self.ppd = self._saved_ppd()
+        self.zoom_out_btn = icon_button("zoom-out", _("Zoom out (Ctrl+-, or Ctrl and the wheel, or pinch)"))
+        self.zoom_out_btn.clicked.connect(lambda: self._zoom_step(-1))
+        self.zoom_in_btn = icon_button("zoom-in", _("Zoom in (Ctrl+=, or Ctrl and the wheel, or pinch)"))
+        self.zoom_in_btn.clicked.connect(lambda: self._zoom_step(1))
         self.critical_button = icon_button("critical", _("Show the critical path"), checkable=True,
                                            checked_role="danger")
         self.critical_button.toggled.connect(self._critical_toggled)
@@ -204,7 +211,9 @@ class PlanPage(Page):
         bar.addWidget(self.fit_button)
         bar.addWidget(self.today_button)
         bar.addSpacing(6)
+        bar.addWidget(self.zoom_out_btn)
         bar.addWidget(self.zoom_control)
+        bar.addWidget(self.zoom_in_btn)
         self.root.addLayout(bar)
 
         # ---- table + chart
@@ -244,6 +253,7 @@ class PlanPage(Page):
         self.root.addLayout(self.stack, 1)
 
         # ---- wiring
+        self.view.verticalScrollBar().setSingleStep(self.tree.verticalScrollBar().singleStep())
         self.tree.verticalScrollBar().valueChanged.connect(self.view.verticalScrollBar().setValue)
         self.view.verticalScrollBar().valueChanged.connect(self.tree.verticalScrollBar().setValue)
         self.tree.itemSelectionChanged.connect(self._selection_changed)
@@ -264,7 +274,7 @@ class PlanPage(Page):
         v.activated.connect(self.open_sheet)
         v.menuRequested.connect(lambda id, pos: self._menu(id, pos))
         v.selectionPicked.connect(self._picked)
-        v.zoomRequested.connect(self._zoom_step)
+        v.zoomRequested.connect(self.zoom_by)
         self._shortcuts()
         theme.manager().changed.connect(lambda _t: self.refresh())
 
@@ -396,7 +406,7 @@ class PlanPage(Page):
         if self.record is None:
             return
         today = self.editor.today()
-        tl = timeline_for(self.record, ZOOMS[self.zoom], today)
+        tl = timeline_for(self.record, self.ppd, today)
         self.view.chart.build(self.record, self._rows(), tl, theme.current(), today,
                               self.critical_on, set(self.selected_ids()))
         self.view.header.update()
@@ -457,22 +467,37 @@ class PlanPage(Page):
 
     # ---- zoom and scrolling -----------------------------------------------------------------
 
+    def _saved_ppd(self) -> float:
+        try:
+            ppd = float(QSettings().value("plan/ppd", ZOOMS[self.zoom]))
+        except (TypeError, ValueError):
+            ppd = ZOOMS[self.zoom]
+        return max(MIN_PPD, min(MAX_PPD, ppd))
+
     def set_zoom(self, key: str):
-        anchor = None
-        tl = self.view.chart.tl
-        if tl:
-            width = self.view.viewport().width()
-            anchor = tl.day_at(self.view.horizontalScrollBar().value() + width / 2)
+        """One of the named levels; the view stays on the day in its middle."""
+        self.zoom_by(ZOOMS[key] / self.ppd)
         self.zoom = key
-        QSettings().setValue("plan/zoom", key)
         self.zoom_control.set_value(key)
+        QSettings().setValue("plan/zoom", key)
+
+    def zoom_by(self, factor: float, x: float | None = None):
+        """Bigger or smaller by `factor`, keeping still the day at `x` in the chart (its middle if not given)."""
+        width = self.view.viewport().width()
+        x = width / 2 if x is None else x
+        bar = self.view.horizontalScrollBar()
+        day = (bar.value() + x) / self.ppd
+        self.ppd = max(MIN_PPD, min(MAX_PPD, self.ppd * factor))
+        # The level closest to this size stays lit (compared as ratios: 2.4 and 6 are as far as 16 and 40).
+        self.zoom = min(ZOOM_ORDER, key=lambda k: abs(log(ZOOMS[k] / self.ppd)))
+        self.zoom_control.set_value(self.zoom)
+        QSettings().setValue("plan/zoom", self.zoom)
+        QSettings().setValue("plan/ppd", self.ppd)
         self._draw_chart()
-        if anchor and self.view.chart.tl:
-            self.view.scroll_to_date(anchor, margin=self.view.viewport().width() / 2)
+        bar.setValue(round(day * self.ppd - x))
 
     def _zoom_step(self, direction: int):
-        i = ZOOM_ORDER.index(self.zoom) - direction  # zoom in = bigger days = earlier entry
-        self.set_zoom(ZOOM_ORDER[max(0, min(len(ZOOM_ORDER) - 1, i))])
+        self.zoom_by(WHEEL_ZOOM ** direction)
 
     def fit(self):
         r = self.record
@@ -480,12 +505,7 @@ class PlanPage(Page):
             return
         days = (r.finish - r.start).days + 14
         width = max(self.view.viewport().width(), 200)
-        best = ZOOM_ORDER[-1]
-        for key in ZOOM_ORDER:
-            if ZOOMS[key] * days <= width:
-                best = key
-                break
-        self.set_zoom(best)
+        self.zoom_by(width / days / self.ppd)
         self.view.scroll_to_date(r.start - timedelta(days=4), margin=0)
 
     def go_today(self, initial: bool = False):
