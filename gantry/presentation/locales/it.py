@@ -265,4 +265,6 @@ MESSAGES = {
     'Highest': 'Massima',
     'Zoom in (Ctrl+=, or Ctrl and the wheel, or pinch)': 'Zoom avanti (Ctrl+=, oppure Ctrl e la rotellina, oppure pizzica)',
     'Zoom out (Ctrl+-, or Ctrl and the wheel, or pinch)': 'Zoom indietro (Ctrl+-, oppure Ctrl e la rotellina, oppure pizzica)',
+    "Glass look": "Aspetto vetro",
+    "Frosted, see-through surfaces over a soft wash of colour.": "Superfici smerigliate e trasparenti su una leggera sfumatura di colore.",
 }

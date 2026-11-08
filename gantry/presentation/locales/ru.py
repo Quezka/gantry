@@ -266,4 +266,6 @@ MESSAGES = {
     'Highest': 'Самый высокий',
     'Zoom in (Ctrl+=, or Ctrl and the wheel, or pinch)': 'Приблизить (Ctrl+=, или Ctrl и колесо, или щипок)',
     'Zoom out (Ctrl+-, or Ctrl and the wheel, or pinch)': 'Отдалить (Ctrl+-, или Ctrl и колесо, или щипок)',
+    "Glass look": "Эффект стекла",
+    "Frosted, see-through surfaces over a soft wash of colour.": "Матовые полупрозрачные поверхности на мягком цветном фоне.",
 }
