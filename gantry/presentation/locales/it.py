@@ -266,5 +266,8 @@ MESSAGES = {
     'Zoom in (Ctrl+=, or Ctrl and the wheel, or pinch)': 'Zoom avanti (Ctrl+=, oppure Ctrl e la rotellina, oppure pizzica)',
     'Zoom out (Ctrl+-, or Ctrl and the wheel, or pinch)': 'Zoom indietro (Ctrl+-, oppure Ctrl e la rotellina, oppure pizzica)',
     "Glass look": "Aspetto vetro",
-    "Frosted, see-through surfaces over a soft wash of colour.": "Superfici smerigliate e trasparenti su una leggera sfumatura di colore.",
+    "Menus, bars and headers blur what's under them.": 'Menu, barre e intestazioni sfocano ciò che sta sotto.',
+    'See-through windows': 'Finestre trasparenti',
+    'The desktop shows through, blurred. Takes effect the next time the app starts.': "Si vede il desktop dietro, sfocato. Vale dal prossimo avvio dell'app.",
+    'On GNOME this needs the Blur my Shell extension.': "Su GNOME serve l'estensione Blur my Shell.",
 }
