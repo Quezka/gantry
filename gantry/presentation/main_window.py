@@ -26,6 +26,7 @@ from .views.home import HomePage
 from .views.plan import PlanPage
 from .views.project import ProjectPage
 from .views.resources import ResourcesPage
+from quezka_ui.fit import fit_sidebar
 
 RECENT = 12
 
@@ -38,7 +39,6 @@ class Sidebar(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("sidebar")
-        self.setFixedWidth(173)
         self.group = QButtonGroup(self)
         self.group.setExclusive(True)
         brand_icon = QLabel()
@@ -76,6 +76,8 @@ class Sidebar(QFrame):
         layout.addStretch()
         layout.addLayout(school)
         layout.addLayout(self.footer)
+
+        fit_sidebar(self, 173)
 
     def nav_button(self, icon_name: str, text: str, checkable: bool = True) -> QToolButton:
         button = QToolButton(objectName="nav", text=f"  {text}", checkable=checkable)

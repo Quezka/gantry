@@ -22,6 +22,7 @@ from ..formatting import money, priority_cell, short_date, table_date
 from ..gantt import HEADER, MAX_PPD, MIN_PPD, ROW, WHEEL_ZOOM, ZOOM_ORDER, ZOOMS, GanttView, timeline_for, visible_rows
 from ..i18n import C_, N_, _, plural
 from .common import Card, Page, Segmented, button, icon_button, label, primary_button
+from quezka_ui.fit import exec_menu
 
 NAME, START, END, DAYS, DONE, PRIORITY = range(6)
 ID = Qt.UserRole
@@ -740,7 +741,7 @@ class PlanPage(Page):
         if id is None:
             menu = QMenu(self)
             menu.addAction(_("Add task"), lambda: self.add_task())
-            menu.exec(global_pos)
+            exec_menu(menu, global_pos)
             return
         if id not in self.selected_ids():
             self.select(id)
@@ -762,4 +763,4 @@ class PlanPage(Page):
         menu.addAction(_("Move down"), lambda: self.move(+1))
         menu.addSeparator()
         menu.addAction(_("Delete"), self.delete_selected)
-        menu.exec(global_pos)
+        exec_menu(menu, global_pos)
