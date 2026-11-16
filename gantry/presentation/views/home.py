@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import QSize, Qt, Signal
+from quezka_ui.flow import Flow
 from PySide6.QtWidgets import (
     QGridLayout, QListWidget, QListWidgetItem, QSizePolicy, QToolButton, QVBoxLayout,
 )
@@ -24,7 +25,7 @@ class HomePage(Page):
         self.subtitle.setText(_("Plan projects as Gantt charts. Opens and saves GanttProject files."))
 
         start = Card(_("Start"))
-        grid = QGridLayout()
+        grid = Flow()  # wraps @ split screen
         grid.setSpacing(10)
         for column, (icon, text, detail, action) in enumerate((
                 ("gantt", _("New project"), _("Tasks, dependencies, people"),
