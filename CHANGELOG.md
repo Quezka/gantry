@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.15.2] - 2026-11-18
+
+- **People can be assigned to summary tasks** (a task with tasks under it, like a whole project or phase): their tick boxes in the task editor were greyed out.
+
 ## [0.15.1] - 2026-11-16
 
 - **Lists and menus open right under their box** when you chose an interface size other than 100% on GNOME (kit 0.15.1).

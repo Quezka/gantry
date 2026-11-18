@@ -315,9 +315,6 @@ class TaskEditor(QDialog):
                 w.setEnabled(False)
             self.cost.setEnabled(False)
             self.fixed.setEnabled(False)
-            for _r, check, load in self.people:
-                check.setEnabled(False)
-                load.setEnabled(False)
         self.name.setFocus()
         self.name.selectAll()
 

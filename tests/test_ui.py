@@ -185,6 +185,19 @@ def test_editing_a_summary_task_keeps_its_children_alone(window):
     assert not window.editor.dirty or window.editor.project().tasks[1].duration == 2
 
 
+def test_people_can_be_assigned_to_a_summary_task(window):
+    from gantry.presentation.dialogs import TaskEditor
+    open_sample(window)
+    record = window.editor.project()
+    dialog = TaskEditor(window.editor, record.tasks[0], record)
+    r, check, load = dialog.people[0]
+    assert check.isEnabled()
+    check.setChecked(True)
+    assert load.isEnabled()
+    window.editor.update_task(0, dialog.to_input())
+    assert r.id in [a.resource for a in window.editor.project().tasks[0].assignments]
+
+
 def test_resources_and_project_pages(window):
     open_sample(window)
     window.editor.add_resource(ResourceInput("Gigi"))
